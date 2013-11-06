@@ -171,9 +171,10 @@ public class DroidAtScreenApplication implements Application, AndroidDeviceListe
 	}
 
 	private void centerFrameLocationOnScreenRegion(DeviceFrame frame, int screenWidth, int screenHeight, int offset, boolean animate) {
+		int x1 = frame.getX();
 		int x = (screenWidth - frame.getWidth()) / 2;
 		int y = (screenHeight - frame.getHeight()) / 2;
-		frame.setLocation(x + screenWidth * offset, y, animate);
+		frame.setLocation(x1, y, animate);
 	}
 
 	// --------------------------------------------

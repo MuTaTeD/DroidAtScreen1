@@ -101,7 +101,7 @@ public class DeviceTableModel extends AbstractTableModel {
 			case SHOW:
 				return dev.isVisible();
 			case SKIN:
-				return dev.shouldSkin();
+				return dev.isSkin();
 			}
 		}
 		return null;

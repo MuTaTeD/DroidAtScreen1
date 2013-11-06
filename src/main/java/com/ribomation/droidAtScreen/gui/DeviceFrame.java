@@ -314,7 +314,7 @@ public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
 				if(skin)
 					applySkin();
 				app.getDeviceTableModel().refresh();
-//				app.updateDeviceFramePositionsOnScreen(null);
+				app.updateDeviceFramePositionsOnScreen(null);
 			}
 		}
 	}
@@ -679,10 +679,5 @@ public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
 		} else {
 			super.setLocation(x, y);
 		}
-	}
-	
-	public boolean shouldSkin()
-	{
-		return skin;
 	}
 }
