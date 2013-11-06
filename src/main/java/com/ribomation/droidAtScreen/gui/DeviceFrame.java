@@ -58,6 +58,7 @@ import com.ribomation.droidAtScreen.cmd.ScreenshotCommand;
 import com.ribomation.droidAtScreen.cmd.UpsideDownCommand;
 import com.ribomation.droidAtScreen.dev.AndroidDevice;
 import com.ribomation.droidAtScreen.dev.ScreenImage;
+import com.sun.j3d.utils.behaviors.vp.WandViewBehavior.ResetViewListener;
 
 /**
  * Frame holder for the device image.
@@ -66,6 +67,16 @@ import com.ribomation.droidAtScreen.dev.ScreenImage;
  * @date 2010-jan-17 22:13:20
  */
 public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
+	public boolean isSkin()
+	{
+		return skin;
+	}
+
+	public void setSkin(boolean skin)
+	{
+		this.skin = skin;
+	}
+
 	private final static RenderingHints HINTS = new RenderingHints(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 
 	private final Application app;
@@ -83,6 +94,8 @@ public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
 	private InfoPane infoPane;
 
 	private Point mouseDownCompCoords = null;
+	
+	private boolean skin;
 
 	private final class AnimationActionListener implements ActionListener {
 
@@ -146,22 +159,9 @@ public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
 
 		Settings cfg = app.getSettings();
 		setScale(cfg.getPreferredScale());
-		setLandscapeMode(cfg.isLandscape());
-
-		setTitle(device.getName());
-		setIconImage(GuiUtil.loadIcon("device").getImage());
-		setResizable(false);
-
-		JComponent c = (JComponent) getContentPane();
-		c.setBorder(BorderFactory.createEmptyBorder());
-
-		add(canvas = new ImageCanvas(), BorderLayout.CENTER);
-		add(toolBar = createToolBar(), BorderLayout.WEST);
-		add(infoPane = new InfoPane(), BorderLayout.SOUTH);
-
-		canvas.setBorder(BorderFactory.createEmptyBorder());
-
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		
+		resetDeviceFrame();
+		
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -212,6 +212,40 @@ public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
 		pack();
 	}
 
+	public void resetDeviceFrame()
+	{
+		Settings cfg = app.getSettings();
+//		setScale(cfg.getPreferredScale());
+		setLandscapeMode(cfg.isLandscape());
+
+		setTitle(device.getName());
+		setIconImage(GuiUtil.loadIcon("device").getImage());
+		setResizable(false);
+
+		JComponent c = (JComponent) getContentPane();
+		c.setBorder(BorderFactory.createEmptyBorder());
+
+		add(canvas = new ImageCanvas(), BorderLayout.CENTER);
+		add(toolBar = createToolBar(), BorderLayout.WEST);
+		add(infoPane = new InfoPane(), BorderLayout.SOUTH);
+
+		canvas.setBorder(BorderFactory.createEmptyBorder());
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		
+		pack();
+		dispose();
+		
+		setUndecorated(false);
+		setBackground(new Color(1.0f, 1.0f, 1.0f, 1.0f));
+		toolBar.setVisible(true);
+		infoPane.setVisible(true);
+		setVisible(true);
+		
+		canvas.setSkin(null);
+//		dispose();
+		
+		forceRepaint();
+	}
 	private void applySkin() {
 		Skin skin = null;
 		try {
@@ -233,6 +267,17 @@ public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
 		}
 	}
 
+	public void restartRetriver()
+	{
+//		stopRetriever();
+//		startRetriever();
+		
+		canvas.resetCanvas();
+		if(!skin)
+		{
+			resetDeviceFrame();
+		}
+	}
 	public void startRetriever() {
 		retriever = new Retriever();
 		app.getTimer().schedule(retriever, 0, 500);
@@ -266,9 +311,10 @@ public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
 				log = Logger.getLogger(DeviceFrame.class.getName() + ":" + device.getName());
 				setTitle(device.getName());
 				pack();
-				applySkin();
+				if(skin)
+					applySkin();
 				app.getDeviceTableModel().refresh();
-				app.updateDeviceFramePositionsOnScreen(null);
+//				app.updateDeviceFramePositionsOnScreen(null);
 			}
 		}
 	}
@@ -384,6 +430,11 @@ public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
 		}
 
 		public void setSkin(Skin skin) {
+			if(null == skin)
+			{
+				repaint();
+				return;
+			}
 			this.skinScreenXYPoint = skin.getScreenXYCoord();
 			BufferedImage bi = new BufferedImage(skin.getFrame().getIconWidth(), skin.getFrame().getIconHeight(), BufferedImage.TYPE_INT_ARGB);
 			Graphics g = bi.createGraphics();
@@ -403,6 +454,12 @@ public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
 			return image;
 		}
 
+		public void resetCanvas()
+		{
+			this.image = null;
+			this.skinBackgroundImage = null;
+		}
+		
 		@Override
 		protected void paintComponent(Graphics g) {
 			if (image != null && g instanceof Graphics2D) {
@@ -437,9 +494,9 @@ public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
 				}
 				g2.drawImage(bufImg, TX, null);
 			} else {
-				g.setColor(Color.RED);
-				g.setFont(getFont().deriveFont(16.0F));
-				g.drawString("No screenshot yet", 10, 25);
+//				g.setColor(Color.RED);
+//				g.setFont(getFont().deriveFont(16.0F));
+//				g.drawString("No screenshot yet", 10, 25);
 			}
 		}
 
@@ -622,5 +679,10 @@ public class DeviceFrame extends JFrame implements Comparable<DeviceFrame> {
 		} else {
 			super.setLocation(x, y);
 		}
+	}
+	
+	public boolean shouldSkin()
+	{
+		return skin;
 	}
 }

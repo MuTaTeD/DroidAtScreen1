@@ -19,6 +19,7 @@ public class DeviceTableModel extends AbstractTableModel {
 	private static final int SERNO = 2;
 	private static final int STATE = 3;
 	private static final int SHOW = 4;
+	private static final int SKIN = 5;
 
 	private final List<DeviceFrame> devices = new ArrayList<DeviceFrame>();
 	private final Logger log;
@@ -38,7 +39,7 @@ public class DeviceTableModel extends AbstractTableModel {
 	 */
 	@Override
 	public int getColumnCount() {
-		return 5;
+		return 6;
 	}
 
 	@Override
@@ -59,6 +60,8 @@ public class DeviceTableModel extends AbstractTableModel {
 			return "State";
 		case SHOW:
 			return "Visible";
+		case SKIN:
+			return "Skin";
 		}
 		return "";
 	}
@@ -75,6 +78,8 @@ public class DeviceTableModel extends AbstractTableModel {
 		case STATE:
 			return String.class;
 		case SHOW:
+			return Boolean.class;
+		case SKIN:
 			return Boolean.class;
 		}
 		return String.class;
@@ -95,6 +100,8 @@ public class DeviceTableModel extends AbstractTableModel {
 				return dev.getDevice().getState();
 			case SHOW:
 				return dev.isVisible();
+			case SKIN:
+				return dev.shouldSkin();
 			}
 		}
 		return null;
@@ -102,7 +109,7 @@ public class DeviceTableModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int row, int col) {
-		if (col == SHOW) {
+		if (col == SHOW || col == SKIN) {
 			return true;
 		}
 		return false;
@@ -122,10 +129,25 @@ public class DeviceTableModel extends AbstractTableModel {
 			if (!dev.isVisible() && newValue) { //show
 				dev.pack();
 				dev.setVisible(true);
+				dev.startRetriever();
 			}
 			if (dev.isVisible() && !newValue) { //hide
 				dev.stopRetriever();
 				dev.setVisible(false);
+			}
+		}
+		
+		if (col == SKIN) {
+			boolean newValue = (Boolean) value;
+			if (!dev.isSkin() && newValue) { //show
+				dev.setSkin(true);
+				dev.pack();
+				dev.restartRetriver();
+			}
+			if (dev.isSkin() && !newValue) { //hide
+				dev.setSkin(false);
+				dev.pack();
+				dev.restartRetriver();
 			}
 		}
 

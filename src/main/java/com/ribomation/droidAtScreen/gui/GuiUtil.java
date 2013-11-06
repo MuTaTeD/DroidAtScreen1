@@ -79,17 +79,17 @@ public class GuiUtil {
 	}
 
 	public static ImageIcon loadSkin(String skinName) {
-		String path = "/skins/" + skinName + "/frame.png";
+		String path = "skins/" + skinName + "/frame.png";
 		return loadImageFromPath(path);
 	}
 
 	public static ImageIcon loadImage(String name, String ext) {
-		String path = "/img/" + name + "." + ext.toLowerCase();
+		String path = "img/" + name + "." + ext.toLowerCase();
 		return loadImageFromPath(path);
 	}
 
 	private static ImageIcon loadImageFromPath(String path) {
-		URL url = GuiUtil.class.getResource(path);
+		URL url = GuiUtil.class.getClassLoader().getResource(path);
 		if (url != null) {
 			return new ImageIcon(url);
 		}
