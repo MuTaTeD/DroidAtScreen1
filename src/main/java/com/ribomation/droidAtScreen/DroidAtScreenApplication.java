@@ -163,7 +163,7 @@ public class DroidAtScreenApplication implements Application, AndroidDeviceListe
 						centerFrameLocationOnScreenRegion(frame, width * count, height, 0, false);
 					}
 					// center each frame within their screen region
-					centerFrameLocationOnScreenRegion(frame, width, height, offset, true);
+					centerFrameLocationOnScreenRegion(frame, 0, height, offset, true);
 					offset++;
 				}
 			}
@@ -171,9 +171,13 @@ public class DroidAtScreenApplication implements Application, AndroidDeviceListe
 	}
 
 	private void centerFrameLocationOnScreenRegion(DeviceFrame frame, int screenWidth, int screenHeight, int offset, boolean animate) {
-		int x = (screenWidth - frame.getWidth()) / 2;
+		int x = frame.getX();
+		if(screenWidth > 0)	
+		{
+			x = (screenWidth - frame.getWidth()) / 2;
+		}
 		int y = (screenHeight - frame.getHeight()) / 2;
-		frame.setLocation(x + screenWidth * offset, y, animate);
+		frame.setLocation(x, y, animate);
 	}
 
 	// --------------------------------------------
